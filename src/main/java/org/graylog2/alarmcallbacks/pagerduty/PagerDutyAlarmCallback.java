@@ -44,6 +44,7 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
     private static final String CK_CLIENT = "client";
     private static final String CK_CLIENT_URL = "client_url";
     private static final String CK_DESCRIPTION = "description";
+    private static final String CK_ALERT_ID = "alert_id";
 
     private Configuration configuration;
 
@@ -54,6 +55,13 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
 
     @Override
     public void call(final Stream stream, final AlertCondition.CheckResult result) throws AlarmCallbackException {
+        // If the alert ID isn't an empty string, and isn't the same as the triggered condition, don't alert.
+        if (!"".equals(configuration.getString(CK_ALERT_ID)) &&
+            !result.getTriggeredCondition().getId().equals(configuration.getString(CK_ALERT_ID)))
+        {
+            return;
+        }
+
         call(new PagerDutyClient(
                 configuration.getString(CK_SERVICE_KEY),
                 configuration.getBoolean(CK_CUSTOM_INCIDENT_KEY),
@@ -94,6 +102,10 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
         configurationRequest.addField(new TextField(
                 CK_DESCRIPTION, "Description", "",
                 "Description to use to override auto-generated text.",
+                ConfigurationField.Optional.OPTIONAL));
+        configurationRequest.addField(new TextField(
+                CK_ALERT_ID, "Alert ID", "",
+                "Specific alert ID to require for the incident to be triggered.",
                 ConfigurationField.Optional.OPTIONAL));
 
         return configurationRequest;
