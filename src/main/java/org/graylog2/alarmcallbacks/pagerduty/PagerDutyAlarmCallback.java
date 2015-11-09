@@ -43,6 +43,7 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
     private static final String CK_INCIDENT_KEY_PREFIX = "incident_key_prefix";
     private static final String CK_CLIENT = "client";
     private static final String CK_CLIENT_URL = "client_url";
+    private static final String CK_DESCRIPTION = "description";
 
     private Configuration configuration;
 
@@ -58,7 +59,8 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
                 configuration.getBoolean(CK_CUSTOM_INCIDENT_KEY),
                 configuration.getString(CK_INCIDENT_KEY_PREFIX),
                 configuration.getString(CK_CLIENT),
-                configuration.getString(CK_CLIENT_URL)), stream, result);
+                configuration.getString(CK_CLIENT_URL),
+                configuration.getString(CK_DESCRIPTION)), stream, result);
     }
 
     @VisibleForTesting
@@ -88,6 +90,10 @@ public class PagerDutyAlarmCallback implements AlarmCallback {
         configurationRequest.addField(new TextField(
                 CK_CLIENT_URL, "Client URL", "",
                 "The URL of the Graylog system that is triggering the PagerDuty event.",
+                ConfigurationField.Optional.OPTIONAL));
+        configurationRequest.addField(new TextField(
+                CK_DESCRIPTION, "Description", "",
+                "Description to use to override auto-generated text.",
                 ConfigurationField.Optional.OPTIONAL));
 
         return configurationRequest;

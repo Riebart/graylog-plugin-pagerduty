@@ -54,6 +54,7 @@ public class PagerDutyClient {
     private final String incidentKeyPrefix;
     private final String clientName;
     private final String clientUrl;
+    private final String description;
     private final ObjectMapper objectMapper;
 
     @VisibleForTesting
@@ -62,12 +63,14 @@ public class PagerDutyClient {
                     final String incidentKeyPrefix,
                     final String clientName,
                     final String clientUrl,
+                    final String description,
                     final ObjectMapper objectMapper) {
         this.serviceKey = serviceKey;
         this.customIncidentKey = customIncidentKey;
         this.incidentKeyPrefix = incidentKeyPrefix;
         this.clientName = clientName;
         this.clientUrl = clientUrl;
+        this.description = description;
         this.objectMapper = objectMapper;
     }
 
@@ -75,8 +78,9 @@ public class PagerDutyClient {
                            final boolean customIncidentKey,
                            final String incidentKeyPrefix,
                            final String clientName,
-                           final String clientUrl) {
-        this(serviceKey, customIncidentKey, incidentKeyPrefix, clientName, clientUrl, new ObjectMapper());
+                           final String clientUrl,
+                           final String description) {
+        this(serviceKey, customIncidentKey, incidentKeyPrefix, clientName, clientUrl, description, new ObjectMapper());
     }
 
     public void trigger(final Stream stream, final AlertCondition.CheckResult checkResult) throws AlarmCallbackException {
@@ -129,7 +133,7 @@ public class PagerDutyClient {
         }
 
         return new PagerDutyEvent(
-                serviceKey, "trigger", checkResult.getResultDescription(), incidentKey, clientName, clientUrl,
+                serviceKey, "trigger", (description == "" ? checkResult.getResultDescription() : description), incidentKey, clientName, clientUrl,
                 ImmutableMap.<String, Object>of(
                         "stream_id", stream.getId(),
                         "stream_title", stream.getTitle(),
